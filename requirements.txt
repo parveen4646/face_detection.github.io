@@ -1,6 +1,6 @@
 facenet_pytorch==2.5.3
 Flask==3.0.2
-keras==3.0.o
+keras>=3.0.0
 matplotlib==3.8.2
 mtcnn==0.1.1
 numpy==1.26.4
