@@ -1,12 +1,10 @@
 from flask import Flask, jsonify,render_template,redirect,url_for
-from app import import_files, extract_face, generate_embedding, stack_embed, fina_result
+from face import import_files, extract_face, generate_embedding, stack_embed, fina_result
 import torch
 app = Flask(__name__)
-from flask_bootstrap import Bootstrap
-bootstrap = Bootstrap(app)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from facenet_pytorch import InceptionResnetV1
-from app import main
+from face import main
 # Define your routes
 @app.route('/')
 def index():
