@@ -1,0 +1,7 @@
+pandas
+numpy
+tensorflow
+keras
+flask
+mtcnn
+facenet_pytorch
