@@ -40,7 +40,7 @@ def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
 
 
 
-def generate_embedding(pixels):
+def generate_embedding(pixels,model,device):
     emb_list=[]
     name_list=[]
     for v,i in pixels.items():
@@ -98,14 +98,11 @@ def main():
     model=InceptionResnetV1(pretrained='vggface2').eval().to(device)
     imc=list(map(extract_face,list_of_images))
     imc=imc[0]
-    embeddings,list_names=generate_embedding(imc)
+    embeddings,list_names=generate_embedding(imc,model,device)
     embeddd=stack_embed(embeddings)
     final_embeddings=embeddd
     fina_result(final_embeddings,list_names)
 
-
-if __name__ == "__main__":
-    main()
 
  
 
