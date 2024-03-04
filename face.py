@@ -40,12 +40,12 @@ def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
 
 
 
-def generate_embedding(pixels,model,device):
+def generate_embedding(pixels,model):
     emb_list=[]
     name_list=[]
     for v,i in pixels.items():
         for sep in i:
-            face=torch.tensor(sep).to(device)
+            face=torch.tensor(sep)
             face=(face/255.0-0.5)/.5
             face=face.unsqueeze(0)
             tensor_permuted = face.permute(0, 3, 1, 2)
@@ -92,13 +92,12 @@ def fina_result(final_embeddings,list_names):
 def main():
     list_of_images=import_files()
     images_dict={i:file for i,file in enumerate(list_of_images)}
-    global device
+
     global model
-    device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model=InceptionResnetV1(pretrained='vggface2').eval().to(device)
+    model=InceptionResnetV1(pretrained='vggface2').eval()
     imc=list(map(extract_face,list_of_images))
     imc=imc[0]
-    embeddings,list_names=generate_embedding(imc,model,device)
+    embeddings,list_names=generate_embedding(imc,model)
     embeddd=stack_embed(embeddings)
     final_embeddings=embeddd
     fina_result(final_embeddings,list_names)
