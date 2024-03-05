@@ -1,0 +1,21 @@
+runtime: slim  # Use the slim Python Docker image (replace if needed)
+
+service: your-service-name  # Replace with a unique and descriptive name
+
+env: flex  # Deploy to the flexible environment
+
+# Optional: Specify environment variables
+# env_variables:
+#   MY_VARIABLE: value
+
+# Optional: Configure scaling (manual or automatic)
+# scaling:
+#   automatic:
+#     # ... (configure scaling settings)
+
+# Configure a custom entrypoint script
+entrypoint: gunicorn -b :$PORT flask_app:app
+
+# Optional: Specify additional dependencies to install during deployment
+# dependencies:
+#   - name: requirements.txt
