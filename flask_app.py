@@ -3,7 +3,6 @@ from face import import_files, extract_face, generate_embedding, stack_embed, fi
 import torch
 app = Flask(__name__)
 from facenet_pytorch import InceptionResnetV1
-from face import main
 # Define your routes
 @app.route('/')
 def index():
