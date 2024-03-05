@@ -1,4 +1,7 @@
-runtime: slim  # Use the slim Python Docker image (replace if needed)
+runtime: python
+
+runtime_config:
+  operating_system: ubuntu22
 
 service: your-service-name  # Replace with a unique and descriptive name
 
