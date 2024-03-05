@@ -82,19 +82,4 @@ def fina_result(final_embeddings, list_names):
             print('result save')
 
 
-def main():
-    list_of_images = import_files()
-    images_dict = {i: file for i, file in enumerate(list_of_images)}
 
-    global model
-    model = InceptionResnetV1(pretrained='vggface2', classify=False).eval()
-    imc = list(map(extract_face, list_of_images))
-    imc = imc[0]
-    embeddings, list_names = generate_embedding(imc, model)
-    embeddd = stack_embed(embeddings)
-    final_embeddings = embeddd
-    fina_result(final_embeddings, list_names)
-
-
-if __name__ == "__main__":
-    main()
