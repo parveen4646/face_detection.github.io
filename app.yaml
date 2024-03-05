@@ -1,24 +1,16 @@
-runtime: python
+runtime: python312
 
-runtime_config:
-  operating_system: ubuntu22
+instance_class: F2
 
-service: your-service-name  # Replace with a unique and descriptive name
+env_variables:
+  BUCKET_NAME: "example-gcs-bucket"
 
-env: flex  # Deploy to the flexible environment
+handlers:
+# Matches requests to /images/... to files in static/images/...
+- url: /images
+  static_dir: static/images
 
-# Optional: Specify environment variables
-# env_variables:
-#   MY_VARIABLE: value
-
-# Optional: Configure scaling (manual or automatic)
-# scaling:
-#   automatic:
-#     # ... (configure scaling settings)
-
-# Configure a custom entrypoint script
-entrypoint: gunicorn -b :$PORT flask_app:app
-
-# Optional: Specify additional dependencies to install during deployment
-# dependencies:
-#   - name: requirements.txt
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto
