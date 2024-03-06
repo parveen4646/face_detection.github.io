@@ -1,4 +1,4 @@
-# app.py
+
 
 from flask import Flask, jsonify, render_template, redirect, url_for, request
 from face import import_files, extract_face, generate_embedding, stack_embed, fina_result
