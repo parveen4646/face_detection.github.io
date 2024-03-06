@@ -3,16 +3,14 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 import torch
-import pickle
-import mtcnn
+
+
 # Removing import of keras, as it's not used in the provided code
 
 def import_files(folder_path):
     list_of_images=os.listdir(folder_path)
     #full_paths = [os.path.join(folder_path, filename) for filename in list_of_images]
     # Remove unwanted prefixes from the file paths
-
-    print(os.listdir(os.getcwd()))
     print('files imported')
     print(len(list_of_images))
     return list_of_images
@@ -24,10 +22,8 @@ def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
         # load image from file
         pixels = plt.imread(filename_)
         # create the detector, using default weights
-        with open('mtcnn_detector.pkl', 'rb') as f:
-            detector = pickle.load(f)
-        # detect faces in the image
-        results = detector.detect_faces(pixels)
+        with open ('mtcnn.pkl','rb') as f:
+            results=pickle.load(f)
         # extract the bounding box from the first face
         extracted_images=[]
         for i in range(0, len(results)):
@@ -45,6 +41,7 @@ def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
 def generate_embedding(pixels):
     with open('model.pkl','rb') as f:
         model=pickle.load(f)
+
     emb_list = []
     name_list = []
     if pixels is not None:
@@ -89,7 +86,6 @@ def fina_result(final_embeddings, list_names):
             imagee = plt.imread(f'./images/{k}')
             plt.imsave(f'./images/{str(m)}/{k}', imagee)
        
-            print(f'its ={m}')
             print('result save')
 
 
