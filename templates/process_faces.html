@@ -1,13 +1,17 @@
-{% extends "base.html" %}
+<!-- process_faces.html -->
 
-{% block title %}Process Faces{% endblock %}
-
-{% block content %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Process Faces</h5>
-        <p class="card-text">Click the button below to process faces.</p>
-        <a href="/process_faces" class="btn btn-primary">Process Faces</a>
-    </div>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Processing</title>
+</head>
+<body>
+    <h1>Face Processing</h1>
+    <p>Click the button below to start processing the images.</p>
+    <form action="/process_faces" method="get">
+        <button type="submit">Start Processing</button>
+    </form>
+</body>
+</html>
