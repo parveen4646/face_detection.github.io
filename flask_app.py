@@ -1,7 +1,6 @@
 # app.py
 
 from flask import Flask, jsonify, render_template, redirect, url_for, request
-from facenet_pytorch import InceptionResnetV1
 from face import import_files, extract_face, generate_embedding, stack_embed, fina_result
 import os
 
@@ -17,11 +16,10 @@ def process_faces():
     list_of_images = import_files(folder_path)
     images_dict = {i: file for i, file in enumerate(list_of_images)}
 
-    model = InceptionResnetV1(pretrained='vggface2').eval()
 
     for image_path in list_of_images:
         faces = extract_face(image_path)
-        embeddings, list_names = generate_embedding(faces, model)
+        embeddings, list_names = generate_embedding(faces)
         embeddd = stack_embed(embeddings)
         final_embeddings = embeddd
         fina_result(final_embeddings, list_names)
