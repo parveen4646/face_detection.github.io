@@ -9,6 +9,7 @@ import torch
 
 def import_files(folder_path):
     list_of_images=os.listdir(folder_path)
+    list_of_images=[os.path.join(os.path.dirname(i),(i)) for i in list_of_images]
     #full_paths = [os.path.join(folder_path, filename) for filename in list_of_images]
     # Remove unwanted prefixes from the file paths
     print('files imported')
@@ -17,7 +18,7 @@ def import_files(folder_path):
 
 
 def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
-    filename_ = './images/'+ filename
+    filename_ = filename
     if filename_.endswith((".jpg", ".png",".jpeg")):
         # load image from file
         pixels = plt.imread(filename_)
@@ -78,15 +79,5 @@ def fina_result(final_embeddings, list_names):
         result_indices.append(indices)
     xx = pd.Series([list(i) for i in result_indices if len(i) > 1]).drop_duplicates().reset_index(drop=True)
     print(xx)
-    for m, i in enumerate(xx):
-        
-        for j in i:
-            os.makedirs('images/'+str(m), exist_ok=True)
-            k = list_names[j]
-            imagee = plt.imread(f'./images/{k}')
-            plt.imsave(f'./images/{str(m)}/{k}', imagee)
-       
-            print('result save')
-
-
-
+    
+   
