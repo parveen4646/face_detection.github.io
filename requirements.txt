@@ -12,5 +12,5 @@ google
 gunicorn
 google-cloud-storage
 tensorflow
-ibglib2.0-dev 
+libglib2.0-dev
 libgl1-mesa-glx
