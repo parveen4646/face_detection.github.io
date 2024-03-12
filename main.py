@@ -144,17 +144,12 @@ def fina_result(final_embeddings, list_names):
 
 
 
-
-
-
-
-
-
 def upload_file(file, filename):
     # Upload file to Cloud Storage
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(filename)
     blob.upload_from_file(file)
+
 
 @app.route('/')
 def index():
