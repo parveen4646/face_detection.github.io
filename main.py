@@ -157,6 +157,7 @@ def upload_file(file, filename):
 def index():
     # Render the HTML form for folder upload
     return render_template('base.html')
+    
 @app.route('/upload', methods=['POST'])
 def upload_folder():
     if 'folder' not in request.files:
@@ -166,16 +167,17 @@ def upload_folder():
     if folder.filename == '':
         return 'No selected folder'
     
+    
     # Extract images from the uploaded zip folder using os.listdir
     extracted_images_dir = '/tmp/extracted_images'
     os.makedirs(extracted_images_dir, exist_ok=True)
+    if folder.filename.endswith('.zip'):
+        with zipfile.ZipFile(folder, 'r') as zip_ref:
+            zip_ref.extractall(extracted_images_dir)
 
-    with zipfile.ZipFile(folder, 'r') as zip_ref:
-        zip_ref.extractall(extracted_images_dir)
-
-    # Import and process each image using import_files and extract_face functions
-    list_of_images = import_files(extracted_images_dir)
-    extracted_images_dic1 = {}
+        # Import and process each image using import_files and extract_face functions
+        list_of_images = import_files(extracted_images_dir)
+        extracted_images_dic1 = {}
 
     
     for image_path in list_of_images:
