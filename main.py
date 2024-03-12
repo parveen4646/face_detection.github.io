@@ -22,11 +22,7 @@ import matplotlib
 extracted_images_dir = '/tmp/extracted_images'
 def import_files(folder_path):
     list_of_images = os.listdir(folder_path)
-    print(list_of_images)
-
     list_of_images = [filename for filename in list_of_images if filename.endswith('.jpeg')]
-
-    print(f'currentcwd{os.getcwd()}')
     #full_paths = [os.path.join(folder_path, filename) for filename in list_of_images]
     # Remove unwanted prefixes from the file paths
     print('files imported')
@@ -186,12 +182,11 @@ def upload_folder():
 
         # Remove the uploaded zip file from disk
         os.remove(zip_file_path)
-
-        # Import and process each image using import_files and extract_face functions
-        list_of_images = import_files(extracted_images_dir)
-
-        # Import and process each image using import_files and extract_face functions
-
+        try:
+            list_of_images = import_files(extracted_images_dir)
+        except Exception as e:
+            return f"Error occurred while importing files: {e}", 500
+            
         print(list_of_images)
         extracted_images_dic1 = {}
 
