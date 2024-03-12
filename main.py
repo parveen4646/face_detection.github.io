@@ -16,13 +16,14 @@ from facenet_pytorch import InceptionResnetV1
 import tempfile
 from mtcnn import MTCNN
 import matplotlib
-matplotlib.use('Agg')
+
 
 # Removing import of keras, as it's not used in the provided code
 extracted_images_dir = '/tmp/extracted_images'
 def import_files(folder_path):
-    
     list_of_images = os.listdir(folder_path)
+    print(list_of_images)
+
     list_of_images = [filename for filename in list_of_images if filename.endswith('.jpeg')]
 
     print(f'currentcwd{os.getcwd()}')
@@ -140,7 +141,8 @@ def fina_result(final_embeddings, list_names):
     # Check if the zip file exists
     if os.path.exists(zip_path):
         # Send the zip file as an attachment
-        return send_file(zip_path, as_attachment=True)
+        
+        return send_file(zip_path, as_attachment=True),shutil.rmtree(results_dir)
     else:
         return f'Error: Zip file not found at {zip_path}', 404
 
@@ -172,15 +174,28 @@ def upload_folder():
     extracted_images_dir = '/tmp/extracted_images'
     os.makedirs(extracted_images_dir, exist_ok=True)
     if folder.filename.endswith('.zip'):
-        with zipfile.ZipFile(folder, 'r') as zip_ref:
+        # Get the path to the uploaded zip file
+        zip_file_path = os.path.join(extracted_images_dir, folder.filename)
+        
+        # Save the uploaded zip file to disk
+        folder.save(zip_file_path)
+
+        # Extract the contents of the zip file
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(extracted_images_dir)
+
+        # Remove the uploaded zip file from disk
+        os.remove(zip_file_path)
 
         # Import and process each image using import_files and extract_face functions
         list_of_images = import_files(extracted_images_dir)
+
+        # Import and process each image using import_files and extract_face functions
+
+        print(list_of_images)
         extracted_images_dic1 = {}
 
-    final_embeddings=[]
-    list_names=[]
+    final_embeddings = None 
     for image_path in list_of_images:
         #image_path=os.join.path(os.path(extracted_images_dir),image_path)
         # Extract faces using the function
@@ -189,13 +204,17 @@ def upload_folder():
             embeddings, list_names = generate_embedding(extracted_faces)
             embeddd = stack_embed(embeddings)
             final_embeddings = embeddd
-            
+    if final_embeddings is not None:
+        return fina_result(final_embeddings, list_names)
+    else:
+    # Handle the case where final_embeddings is not assigned a value
+        return 'Error: No faces extracted from the uploaded images', 404        
         # Perform further processing or upload the extracted faces as needed
         # For example, you can upload each face to Cloud Storage
      
 
     # Remove the extracted_images_dir after processing
-    #shutil.rmtree(extracted_images_dir)
+    shutil.rmtree(extracted_images_dir)
 
     success_message = 'Folder uploaded, images processed, and faces extracted successfully'
     return fina_result(final_embeddings, list_names)
