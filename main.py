@@ -15,6 +15,8 @@ import pickle
 from facenet_pytorch import InceptionResnetV1
 import tempfile
 from mtcnn import MTCNN
+import matplotlib
+matplotlib.use('Agg')
 
 # Removing import of keras, as it's not used in the provided code
 extracted_images_dir = '/tmp/extracted_images'
