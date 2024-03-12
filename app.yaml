@@ -9,3 +9,8 @@ handlers:
 
 env_variables:
   GOOGLE_CLOUD_PROJECT: "throuh-app-image-cluster"
+
+# Add system packages
+system_packages:
+  - name: libgl1-mesa-glx
+  - name: libglib2.0-dev
