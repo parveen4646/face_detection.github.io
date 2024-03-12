@@ -180,6 +180,7 @@ def upload_folder():
         extracted_images_dic1 = {}
 
     final_embeddings=[]
+    list_names=[]
     for image_path in list_of_images:
         #image_path=os.join.path(os.path(extracted_images_dir),image_path)
         # Extract faces using the function
