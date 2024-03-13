@@ -186,27 +186,27 @@ def upload_folder():
             list_of_images = import_files(extracted_images_dir)
         except Exception as e:
             return f"Error occurred while importing files: {e}", 500
-            
+
         print(list_of_images)
         extracted_images_dic1 = {}
 
-    final_embeddings = None 
-    for image_path in list_of_images:
-        #image_path=os.join.path(os.path(extracted_images_dir),image_path)
-        # Extract faces using the function
-        extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
-        if extracted_faces:
-            embeddings, list_names = generate_embedding(extracted_faces)
-            embeddd = stack_embed(embeddings)
-            final_embeddings = embeddd
-    if final_embeddings is not None:
-        return fina_result(final_embeddings, list_names)
-    else:
-    # Handle the case where final_embeddings is not assigned a value
-        return 'Error: No faces extracted from the uploaded images', 404        
-        # Perform further processing or upload the extracted faces as needed
-        # For example, you can upload each face to Cloud Storage
-     
+        final_embeddings = None 
+        for image_path in list_of_images:
+            #image_path=os.join.path(os.path(extracted_images_dir),image_path)
+            # Extract faces using the function
+            extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
+            if extracted_faces:
+                embeddings, list_names = generate_embedding(extracted_faces)
+                embeddd = stack_embed(embeddings)
+                final_embeddings = embeddd
+        if final_embeddings is not None:
+            return fina_result(final_embeddings, list_names)
+        else:
+        # Handle the case where final_embeddings is not assigned a value
+            return 'Error: No faces extracted from the uploaded images', 404        
+            # Perform further processing or upload the extracted faces as needed
+            # For example, you can upload each face to Cloud Storage
+        
 
     # Remove the extracted_images_dir after processing
     shutil.rmtree(extracted_images_dir)
