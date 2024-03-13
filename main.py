@@ -158,6 +158,8 @@ def index():
     
 @app.route('/upload', methods=['POST'])
 def upload_folder():
+    global storage_client, bucket_name
+
     if 'folder' not in request.files:
         return 'No folder part'
     
@@ -165,54 +167,46 @@ def upload_folder():
     if folder.filename == '':
         return 'No selected folder'
     
-    
-    # Extract images from the uploaded zip folder using os.listdir
-    extracted_images_dir = '/tmp/extracted_images'
     os.makedirs(extracted_images_dir, exist_ok=True)
+
     if folder.filename.endswith('.zip'):
-        # Get the path to the uploaded zip file
         zip_file_path = os.path.join(extracted_images_dir, folder.filename)
-        
-        # Save the uploaded zip file to disk
         folder.save(zip_file_path)
 
-        # Extract the contents of the zip file
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(extracted_images_dir)
 
-        # Remove the uploaded zip file from disk
         os.remove(zip_file_path)
+
+        list_of_images = []  # Initialize list_of_images here
+
         try:
             list_of_images = import_files(extracted_images_dir)
         except Exception as e:
+            shutil.rmtree(extracted_images_dir)
             return f"Error occurred while importing files: {e}", 500
 
-        print(list_of_images)
         extracted_images_dic1 = {}
-
         final_embeddings = None 
+        list_names = []  
+
         for image_path in list_of_images:
-            #image_path=os.join.path(os.path(extracted_images_dir),image_path)
-            # Extract faces using the function
             extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
             if extracted_faces:
-                embeddings, list_names = generate_embedding(extracted_faces)
+                embeddings, temp_list_names = generate_embedding(extracted_faces)
+                list_names.extend(temp_list_names)
                 embeddd = stack_embed(embeddings)
                 final_embeddings = embeddd
+
         if final_embeddings is not None:
             return fina_result(final_embeddings, list_names)
         else:
-        # Handle the case where final_embeddings is not assigned a value
-            return 'Error: No faces extracted from the uploaded images', 404        
-            # Perform further processing or upload the extracted faces as needed
-            # For example, you can upload each face to Cloud Storage
-        
+            shutil.rmtree(extracted_images_dir)
+            return 'Error: No faces extracted from the uploaded images', 404
 
-    # Remove the extracted_images_dir after processing
     shutil.rmtree(extracted_images_dir)
+    return 'Error: No faces extracted from the uploaded images', 404
 
-    success_message = 'Folder uploaded, images processed, and faces extracted successfully'
-    return fina_result(final_embeddings, list_names)
     
 
 
