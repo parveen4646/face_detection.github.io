@@ -137,7 +137,6 @@ def fina_result(final_embeddings, list_names):
     # Check if the zip file exists
     if os.path.exists(zip_path):
         # Send the zip file as an attachment
-        
         return send_file(zip_path, as_attachment=True),shutil.rmtree(results_dir)
     else:
         return f'Error: Zip file not found at {zip_path}', 404

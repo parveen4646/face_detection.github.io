@@ -1,12 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    autopilot.gke.io/resource-adjustment: >-
-      {"input":{"containers":[{"name":"face-detection-github-io-docker-sha256-1"}]},"output":{"containers":[{"limits":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"requests":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"name":"face-detection-github-io-docker-sha256-1"}]},"modified":true}
-    autopilot.gke.io/warden-version: 2.7.52
   labels:
-    app: clusterimagedeployment
+    app: nginx-1
   managedFields:
     - apiVersion: apps/v1
       fieldsType: FieldsV1
@@ -33,7 +29,7 @@ metadata:
                 'f:app': {}
             'f:spec':
               'f:containers':
-                'k:{"name":"face-detection-github-io-docker-sha256-1"}':
+                'k:{"name":"face-detection-github-io-1"}':
                   .: {}
                   'f:image': {}
                   'f:imagePullPolicy': {}
@@ -48,12 +44,13 @@ metadata:
               'f:terminationGracePeriodSeconds': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-13T03:02:25Z'
+      time: '2024-03-14T11:22:06Z'
     - apiVersion: apps/v1
       fieldsType: FieldsV1
       fieldsV1:
         'f:metadata':
           'f:annotations':
+            .: {}
             'f:deployment.kubernetes.io/revision': {}
         'f:status':
           'f:availableReplicas': {}
@@ -82,14 +79,14 @@ metadata:
       manager: kube-controller-manager
       operation: Update
       subresource: status
-      time: '2024-03-13T03:10:50Z'
-  name: clusterimagedeployment
+      time: '2024-03-14T11:26:59Z'
+  name: nginx-1
   namespace: default
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: clusterimagedeployment
+      app: nginx-1
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -98,40 +95,19 @@ spec:
   template:
     metadata:
       labels:
-        app: clusterimagedeployment
+        app: nginx-1
     spec:
       containers:
         - image: >-
             gcr.io/throuh-app-image-cluster/github.com/parveen4646/face_detection.github.io
           imagePullPolicy: IfNotPresent
-          name: face-detection-github-io-docker-sha256-1
-          resources:
-            limits:
-              cpu: 500m
-              ephemeral-storage: 1Gi
-              memory: 2Gi
-            requests:
-              cpu: 500m
-              ephemeral-storage: 1Gi
-              memory: 2Gi
-          securityContext:
-            capabilities:
-              drop:
-                - NET_RAW
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
-      tolerations:
-        - effect: NoSchedule
-          key: kubernetes.io/arch
-          operator: Equal
-          value: amd64
+          name: face-detection-github-io-1
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   labels:
-    app: clusterimagedeployment
+    app: nginx-1
   managedFields:
     - apiVersion: autoscaling/v2
       fieldsType: FieldsV1
@@ -150,7 +126,7 @@ metadata:
             'f:name': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-13T03:02:25Z'
+      time: '2024-03-14T11:22:07Z'
     - apiVersion: autoscaling/v2
       fieldsType: FieldsV1
       fieldsV1:
@@ -184,8 +160,8 @@ metadata:
       manager: vpa-recommender
       operation: Update
       subresource: status
-      time: '2024-03-13T03:16:14Z'
-  name: clusterimagedeployment-hpa-sssd
+      time: '2024-03-14T15:18:20Z'
+  name: nginx-1-hpa-nstm
   namespace: default
 spec:
   maxReplicas: 5
@@ -200,7 +176,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: clusterimagedeployment
+    name: nginx-1
 ---
 apiVersion: v1
 kind: Service
@@ -210,7 +186,7 @@ metadata:
   finalizers:
     - service.kubernetes.io/load-balancer-cleanup
   labels:
-    app: clusterimagedeployment
+    app: nginx-1
   managedFields:
     - apiVersion: v1
       fieldsType: FieldsV1
@@ -235,7 +211,7 @@ metadata:
           'f:type': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-13T03:03:26Z'
+      time: '2024-03-14T11:23:08Z'
     - apiVersion: v1
       fieldsType: FieldsV1
       fieldsV1:
@@ -249,25 +225,25 @@ metadata:
       manager: cloud-controller-manager
       operation: Update
       subresource: status
-      time: '2024-03-13T03:04:04Z'
-  name: clusterimagedeployment-service
+      time: '2024-03-14T11:23:46Z'
+  name: nginx-1-service
   namespace: default
 spec:
   allocateLoadBalancerNodePorts: true
-  clusterIP: 34.118.234.10
+  clusterIP: 10.64.8.234
   clusterIPs:
-    - 34.118.234.10
+    - 10.64.8.234
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-    - nodePort: 32443
+    - nodePort: 31262
       port: 80
       protocol: TCP
-      targetPort: 80
+      targetPort: 8080
   selector:
-    app: clusterimagedeployment
+    app: nginx-1
   sessionAffinity: None
   type: LoadBalancer
