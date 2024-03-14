@@ -2,6 +2,8 @@ FROM python:3.9-slim
 WORKDIR /app
 
 COPY . /app
+COPY keyfile.json /app/
+
 ENV GOOGLE_APPLICATION_CREDENTIALS="/app/keyfile.json"
 #ENV GOOGLE_APPLICATION_CREDENTIALS="/app/keyfile.json"
 
