@@ -1,34 +1,154 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-1
+  annotations:
+    autopilot.gke.io/resource-adjustment: '{"input":{"containers":[{"name":"face-detection-github-io-1"}]},"output":{"containers":[{"limits":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"requests":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"name":"face-detection-github-io-1"}]},"modified":true}'
+    autopilot.gke.io/warden-version: 2.7.52
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2024-03-15T10:39:18Z"
+  generation: 1
   labels:
     app: nginx-1
-    app.kubernetes.io/managed-by: gcp-cloud-build-deploy
-    app.kubernetes.io/name: nginx-1
-    app.kubernetes.io/version: 73bfd71c7e8a2403849cae6515741667124f6f80
+  managedFields:
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:labels:
+          .: {}
+          f:app: {}
+      f:spec:
+        f:progressDeadlineSeconds: {}
+        f:replicas: {}
+        f:revisionHistoryLimit: {}
+        f:selector: {}
+        f:strategy:
+          f:rollingUpdate:
+            .: {}
+            f:maxSurge: {}
+            f:maxUnavailable: {}
+          f:type: {}
+        f:template:
+          f:metadata:
+            f:labels:
+              .: {}
+              f:app: {}
+          f:spec:
+            f:containers:
+              k:{"name":"face-detection-github-io-1"}:
+                .: {}
+                f:env:
+                  .: {}
+                  k:{"name":"EXTRACTED_IMAGES_DIR"}:
+                    .: {}
+                    f:name: {}
+                    f:valueFrom:
+                      .: {}
+                      f:configMapKeyRef: {}
+                f:image: {}
+                f:imagePullPolicy: {}
+                f:name: {}
+                f:resources: {}
+                f:terminationMessagePath: {}
+                f:terminationMessagePolicy: {}
+            f:dnsPolicy: {}
+            f:restartPolicy: {}
+            f:schedulerName: {}
+            f:securityContext: {}
+            f:terminationGracePeriodSeconds: {}
+    manager: GoogleCloudConsole
+    operation: Update
+    time: "2024-03-15T10:39:18Z"
+  - apiVersion: apps/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          f:deployment.kubernetes.io/revision: {}
+      f:status:
+        f:availableReplicas: {}
+        f:conditions:
+          .: {}
+          k:{"type":"Available"}:
+            .: {}
+            f:lastTransitionTime: {}
+            f:lastUpdateTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"Progressing"}:
+            .: {}
+            f:lastTransitionTime: {}
+            f:lastUpdateTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+        f:observedGeneration: {}
+        f:readyReplicas: {}
+        f:replicas: {}
+        f:updatedReplicas: {}
+    manager: kube-controller-manager
+    operation: Update
+    subresource: status
+    time: "2024-03-15T10:39:21Z"
+  name: nginx-1
+  namespace: default
+  resourceVersion: "172305"
+  uid: 9081cb94-97de-4f14-a41a-14e0b4e8c635
 spec:
+  progressDeadlineSeconds: 600
   replicas: 3
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: nginx-1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: nginx-1
-        app.kubernetes.io/managed-by: gcp-cloud-build-deploy
-        app.kubernetes.io/name: nginx-1
-        app.kubernetes.io/version: 73bfd71c7e8a2403849cae6515741667124f6f80
     spec:
       containers:
-      - name: face-detection-github-io-1
-        image: gcr.io/throuh-app-image-cluster/github.com/parveen4646/face_detection.github.io@sha256:a95bf10aabee5942e35ffa9cf470ffce0e8efc4bc5b243c34fced5a4a70df9b7
+      - env:
+        - name: EXTRACTED_IMAGES_DIR
+          valueFrom:
+            configMapKeyRef:
+              key: EXTRACTED_IMAGES_DIR
+              name: nginx-1-config-i1xw
+        image: gcr.io/kubedeploy-417115/github.com/parveen4646/face_detection.github.io:aa227a3
         imagePullPolicy: IfNotPresent
-        volumeMounts:
-        - name: extracted-images
-          mountPath: /tmp/extracted_images   # Mount path in the container
-      volumes:
-      - name: extracted-images
-        hostPath:
-          path: /tmp/extracted_images       # Path to the local folder on the host
-          type: DirectoryOrCreate           # Create the directory if not exists
+        name: face-detection-github-io-1
+        resources:
+          limits:
+            cpu: 500m
+            ephemeral-storage: 1Gi
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 1Gi
+            memory: 2Gi
+        securityContext:
+          capabilities:
+            drop:
+            - NET_RAW
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: amd64

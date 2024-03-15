@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 # Define the directory to store extracted images
 # Use the mounted directory in Kubernetes if available, otherwise fallback to a local directory
-extracted_images_dir = os.getenv('EXTRACTED_IMAGES_DIR', '/tmp/extracted_images')
+extracted_images_dir = '/mnt/data/extracted_images'
 os.makedirs(extracted_images_dir, exist_ok=True)
 
 
@@ -144,7 +144,7 @@ def upload_folder():
     if folder.filename.endswith('.zip'):
         zip_file_path = os.path.join(extracted_images_dir, folder.filename)
         folder.save(zip_file_path)
-
+        print(zip_file_path)
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(extracted_images_dir)
 
