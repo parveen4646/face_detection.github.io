@@ -176,10 +176,10 @@ def upload_folder():
             shutil.rmtree(extracted_images_dir)
             return 'Error: No faces extracted from the uploaded images', 404
     else:
-        return "no zip folder"
+        return "no zip folder{list_of_images}"
 
     shutil.rmtree(extracted_images_dir)
 
 
 if __name__ == '__main__':
-    app.run(debug=False, port=8080)
+    app.run(debug=True, port=8080)
