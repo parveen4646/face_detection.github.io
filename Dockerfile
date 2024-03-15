@@ -7,9 +7,8 @@ RUN apt-get update && apt-get install -y libglib2.0-dev libgl1-mesa-glx libgl1-m
 
 ENV GOOGLE_APPLICATION_CREDENTIALS="/app/keyfile.json"
 #ENV GOOGLE_APPLICATION_CREDENTIALS="/app/keyfile.json"
-
+ENV EXTRACTED_IMAGES_DIR=/tmp/extracted_images
 RUN python -m pip install -r requirements.txt
-
 
 
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "main:app"]

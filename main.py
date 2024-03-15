@@ -1,9 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request,send_file
-import os
-from google.cloud import storage
-app = Flask(__name__)
-#storage_client = storage.Client()
-#bucket_name = 'clusterimages'
+from flask import Flask, render_template, request, send_file
 import os
 import matplotlib.pyplot as plt
 import cv2
@@ -11,38 +6,36 @@ import numpy as np
 import torch
 import zipfile
 import shutil
-import pickle
 from facenet_pytorch import InceptionResnetV1
-import tempfile
 from mtcnn import MTCNN
-import matplotlib
+import tempfile
+import pandas as pd
+
+app = Flask(__name__)
+
+# Define the directory to store extracted images
+# Use the mounted directory in Kubernetes if available, otherwise fallback to a local directory
+extracted_images_dir = os.getenv('EXTRACTED_IMAGES_DIR', '/tmp/extracted_images')
+os.makedirs(extracted_images_dir, exist_ok=True)
 
 
-# Removing import of keras, as it's not used in the provided code
-extracted_images_dir = '/tmp/extracted_images'
 def import_files(folder_path):
     list_of_images = os.listdir(folder_path)
     list_of_images = [filename for filename in list_of_images if filename.endswith('.jpeg')]
-    #full_paths = [os.path.join(folder_path, filename) for filename in list_of_images]
-    # Remove unwanted prefixes from the file paths
-    print('files imported')
-    print(len(list_of_images))
-    print(list_of_images)
     return list_of_images
 
 
 def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
-    filename=os.path.join(extracted_images_dir,filename)
-    filename_ = filename
-    if filename_.endswith((".jpg", ".png",".jpeg")):
+    filename = os.path.join(extracted_images_dir, filename)
+    if filename.endswith((".jpg", ".png", ".jpeg")):
         print(f'filename={filename}')
         # load image from file
-        pixels = plt.imread(filename_)
+        pixels = plt.imread(filename)
         # create the detector, using default weights
-        mtcnn=MTCNN()
-        results= mtcnn.detect_faces(pixels)
+        mtcnn = MTCNN()
+        results = mtcnn.detect_faces(pixels)
         # extract the bounding box from the first face
-        extracted_images=[]
+        extracted_images = []
         for i in range(0, len(results)):
             x1, y1, width, height = results[i]['box']
             x2, y2 = x1 + width, y1 + height
@@ -52,10 +45,9 @@ def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
             extracted_images_dic = {filename: extracted_images}
             extracted_images_dic1.update(extracted_images_dic)
     else:
-        print(f'else{filename}')        
+        print(f'else {filename}')
     return extracted_images_dic1
-    
-        
+
 
 def generate_embedding(pixels):
     model = InceptionResnetV1(pretrained='vggface2').eval()
@@ -80,16 +72,9 @@ def stack_embed(embeddings):
     return stacked_embeddings
 
 
-from sklearn.metrics.pairwise import cosine_similarity
-import pandas as pd
-
-
-
-def fina_result(final_embeddings, list_names):
+def final_result(final_embeddings, list_names):
     print('final loop')
-    print(os.getcwd())
     result_indices = []
-    print(final_embeddings.shape[0])
     for i in range(final_embeddings.shape[0]):
         score = torch.nn.functional.cosine_similarity(final_embeddings[i], final_embeddings)
         indices = np.where(score > 0.8)[0]
@@ -99,74 +84,62 @@ def fina_result(final_embeddings, list_names):
     print(xx)
     with tempfile.TemporaryDirectory() as tmp_dir:
         results_dir = tmp_dir
-    for m, i in enumerate(xx):
+        for m, i in enumerate(xx):
+            for j in i:
+                k = list_names[j]
+                imagee = plt.imread(k)
 
-        for j in i:
-            k = list_names[j]
-            imagee = plt.imread(k)
+                subdir = os.path.join(results_dir, str(m))
+                os.makedirs(subdir, exist_ok=True)
 
-            subdir = os.path.join(results_dir, str(m))
-            os.makedirs(subdir, exist_ok=True)
-
-            result_filename = f'result_{m}_face_{os.path.basename(k)}'
-            plt.imsave(os.path.join(subdir, result_filename), imagee)
+                result_filename = f'result_{m}_face_{os.path.basename(k)}'
+                plt.imsave(os.path.join(subdir, result_filename), imagee)
 
         print(f"Temporary directory contents: {os.listdir(results_dir)}")
-    files_in_directory = os.listdir(results_dir)
-    print(f"Files in result directory: {files_in_directory}")
+        files_in_directory = os.listdir(results_dir)
+        print(f"Files in result directory: {files_in_directory}")
 
-    if not files_in_directory:
-        return 'Error: No files found in the result directory', 404
+        if not files_in_directory:
+            return 'Error: No files found in the result directory', 404
 
-    # Zip the result directory using the zipfile module
-    zip_filename = 'result_images.zip'
-    zip_path = os.path.join(results_dir, zip_filename)
+        # Zip the result directory using the zipfile module
+        zip_filename = 'result_images.zip'
+        zip_path = os.path.join(results_dir, zip_filename)
 
-    with zipfile.ZipFile(zip_path, 'w') as zip_file:
-        for root, dirs, files in os.walk(results_dir):
-            for file in files:
-                file_path = os.path.join(root, file)
-                arcname = os.path.relpath(file_path, results_dir)
-                zip_file.write(file_path, arcname=arcname)
+        with zipfile.ZipFile(zip_path, 'w') as zip_file:
+            for root, dirs, files in os.walk(results_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, results_dir)
+                    zip_file.write(file_path, arcname=arcname)
 
-    # Debugging statements
-    print(f"Zip file path: {zip_path}")
-    print(f"Zip file exists: {os.path.exists(zip_path)}")
-    print(f"Files added to the zip file: {files_in_directory}")
+        # Debugging statements
+        print(f"Zip file path: {zip_path}")
+        print(f"Zip file exists: {os.path.exists(zip_path)}")
+        print(f"Files added to the zip file: {files_in_directory}")
 
-    # Check if the zip file exists
-    if os.path.exists(zip_path):
-        # Send the zip file as an attachment
-        return send_file(zip_path, as_attachment=True),shutil.rmtree(results_dir)
-    else:
-        return f'Error: Zip file not found at {zip_path}', 404
-
-
-
-def upload_file(file, filename):
-    # Upload file to Cloud Storage
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(filename)
-    blob.upload_from_file(file)
+        # Check if the zip file exists
+        if os.path.exists(zip_path):
+            # Send the zip file as an attachment
+            return send_file(zip_path, as_attachment=True), shutil.rmtree(results_dir)
+        else:
+            return f'Error: Zip file not found at {zip_path}', 404
 
 
 @app.route('/')
 def index():
     # Render the HTML form for folder upload
     return render_template('base.html')
-    
+
+
 @app.route('/upload', methods=['POST'])
 def upload_folder():
-    global storage_client, bucket_name
-
     if 'folder' not in request.files:
         return 'No folder part'
-    
+
     folder = request.files['folder']
     if folder.filename == '':
         return 'No selected folder'
-    
-    os.makedirs(extracted_images_dir, exist_ok=True)
 
     if folder.filename.endswith('.zip'):
         zip_file_path = os.path.join(extracted_images_dir, folder.filename)
@@ -186,8 +159,8 @@ def upload_folder():
             return f"Error occurred while importing files: {e}", 500
 
         extracted_images_dic1 = {}
-        final_embeddings = None 
-        list_names = []  
+        final_embeddings = None
+        list_names = []
 
         for image_path in list_of_images:
             extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
@@ -198,17 +171,15 @@ def upload_folder():
                 final_embeddings = embeddd
 
         if final_embeddings is not None:
-            return fina_result(final_embeddings, list_names)
+            return final_result(final_embeddings, list_names)
         else:
             shutil.rmtree(extracted_images_dir)
             return 'Error: No faces extracted from the uploaded images', 404
     else:
         return "no zip folder"
-         
-    shutil.rmtree(extracted_images_dir)
 
-    
+    shutil.rmtree(extracted_images_dir)
 
 
 if __name__ == '__main__':
-    app.run(debug=False,port=8080)
+    app.run(debug=False, port=8080)
