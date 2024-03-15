@@ -7,8 +7,6 @@ handlers:
 - url: /.*
   script: auto
 
-env_variables:
-  GOOGLE_CLOUD_PROJECT: "throuh-app-image-cluster"
 
 # Add system packages
 system_packages:

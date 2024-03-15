@@ -2,8 +2,8 @@ from flask import Flask, render_template, redirect, url_for, request,send_file
 import os
 from google.cloud import storage
 app = Flask(__name__)
-storage_client = storage.Client()
-bucket_name = 'clusterimages'
+#storage_client = storage.Client()
+#bucket_name = 'clusterimages'
 import os
 import matplotlib.pyplot as plt
 import cv2
@@ -202,9 +202,10 @@ def upload_folder():
         else:
             shutil.rmtree(extracted_images_dir)
             return 'Error: No faces extracted from the uploaded images', 404
-
+    else:
+        return "no zip folder"
+         
     shutil.rmtree(extracted_images_dir)
-    return 'Error: No faces extracted from the uploaded images', 404
 
     
 
