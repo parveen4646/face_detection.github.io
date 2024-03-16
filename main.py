@@ -81,25 +81,24 @@ def final_result(final_embeddings, list_names,extracted_images_dir='/tmp/data/ex
         result_indices.append(indices)
 
     xx = pd.Series([list(i) for i in result_indices if len(i) > 1]).drop_duplicates().reset_index(drop=True)
-    print(xx)
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         results_dir = tmp_dir
         for m, i in enumerate(xx):
             for j in i:
                 k = list_names[j]
                 imagee = plt.imread(k)
-                print(f'imagee={imagee}')
+ 
 
                 subdir = os.path.join(results_dir, str(m))
                 os.makedirs(subdir, exist_ok=True)
 
                 result_filename = f'result_{m}_face_{os.path.basename(k)}'
-                print('result_filename=={result_filename}')
+        
                 plt.imsave(os.path.join(subdir, result_filename), imagee)
 
-        print(f"Temporary directory contents: {os.listdir(results_dir)}")
         files_in_directory = os.listdir(results_dir)
-        print(f"Files in result directory: {files_in_directory}")
+       
 
         if not files_in_directory:
             return 'Error: No files found in the result directory', 404
@@ -135,7 +134,9 @@ def index():
 
 
 @app.route('/upload', methods=['POST'])
-def upload_folder(extracted_images_dir = '/tmp/data/extracted_images'):
+def upload_folder():
+    extracted_images_dir = '/tmp/data/extracted_images'
+    os.makedirs(extracted_images_dir, exist_ok=True)
     if 'folder' not in request.files:
         return 'No folder part'
 
@@ -146,7 +147,7 @@ def upload_folder(extracted_images_dir = '/tmp/data/extracted_images'):
     if folder.filename.endswith('.zip'):
         zip_file_path = os.path.join(extracted_images_dir, folder.filename)
         folder.save(zip_file_path)
-        print(zip_file_path)
+   
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(extracted_images_dir)
 
