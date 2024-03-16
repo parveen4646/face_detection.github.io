@@ -135,7 +135,7 @@ def index():
 
 
 @app.route('/upload', methods=['POST'])
-def upload_folder():
+def upload_folder(extracted_images_dir = '/tmp/data/extracted_images'):
     if 'folder' not in request.files:
         return 'No folder part'
 
