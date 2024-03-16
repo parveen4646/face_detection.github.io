@@ -55,7 +55,7 @@ metadata:
               'f:terminationGracePeriodSeconds': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-16T14:04:30Z'
+      time: '2024-03-16T15:11:01Z'
     - apiVersion: apps/v1
       fieldsType: FieldsV1
       fieldsV1:
@@ -89,7 +89,7 @@ metadata:
       manager: kube-controller-manager
       operation: Update
       subresource: status
-      time: '2024-03-16T14:18:51Z'
+      time: '2024-03-16T15:23:21Z'
   name: nginx-1
   namespace: default
 spec:
@@ -157,7 +157,7 @@ metadata:
             'f:name': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-16T14:04:30Z'
+      time: '2024-03-16T15:11:02Z'
     - apiVersion: autoscaling/v2
       fieldsType: FieldsV1
       fieldsV1:
@@ -192,8 +192,8 @@ metadata:
       manager: vpa-recommender
       operation: Update
       subresource: status
-      time: '2024-03-16T14:45:56Z'
-  name: nginx-1-hpa-3qip
+      time: '2024-03-16T17:09:17Z'
+  name: nginx-1-hpa-m1lg
   namespace: default
 spec:
   maxReplicas: 5
