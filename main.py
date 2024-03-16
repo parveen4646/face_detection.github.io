@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 # Define the directory to store extracted images
 # Use the mounted directory in Kubernetes if available, otherwise fallback to a local directory
-extracted_images_dir = '/mnt/data/extracted_images'
+extracted_images_dir = '/tmp/data/extracted_images'
 os.makedirs(extracted_images_dir, exist_ok=True)
 
 
@@ -25,7 +25,7 @@ def import_files(folder_path):
     return list_of_images
 
 
-def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
+def extract_face(filename, required_size=(224, 224), extracted_images_dic1={},extracted_images_dir='/tmp/data/extracted_images'):
     filename = os.path.join(extracted_images_dir, filename)
     if filename.endswith((".jpg", ".png", ".jpeg")):
         print(f'filename={filename}')
@@ -72,7 +72,7 @@ def stack_embed(embeddings):
     return stacked_embeddings
 
 
-def final_result(final_embeddings, list_names):
+def final_result(final_embeddings, list_names,extracted_images_dir='/tmp/data/extracted_images'):
     print('final loop')
     result_indices = []
     for i in range(final_embeddings.shape[0]):
@@ -88,11 +88,13 @@ def final_result(final_embeddings, list_names):
             for j in i:
                 k = list_names[j]
                 imagee = plt.imread(k)
+                print(f'imagee={imagee}')
 
                 subdir = os.path.join(results_dir, str(m))
                 os.makedirs(subdir, exist_ok=True)
 
                 result_filename = f'result_{m}_face_{os.path.basename(k)}'
+                print('result_filename=={result_filename}')
                 plt.imsave(os.path.join(subdir, result_filename), imagee)
 
         print(f"Temporary directory contents: {os.listdir(results_dir)}")
