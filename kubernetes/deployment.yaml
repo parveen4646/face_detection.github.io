@@ -55,7 +55,7 @@ metadata:
               'f:terminationGracePeriodSeconds': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-16T15:11:01Z'
+      time: '2024-03-17T17:12:36Z'
     - apiVersion: apps/v1
       fieldsType: FieldsV1
       fieldsV1:
@@ -89,7 +89,7 @@ metadata:
       manager: kube-controller-manager
       operation: Update
       subresource: status
-      time: '2024-03-16T15:23:21Z'
+      time: '2024-03-17T17:25:55Z'
   name: nginx-1
   namespace: default
 spec:
@@ -157,7 +157,7 @@ metadata:
             'f:name': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-16T15:11:02Z'
+      time: '2024-03-17T17:12:36Z'
     - apiVersion: autoscaling/v2
       fieldsType: FieldsV1
       fieldsV1:
@@ -192,8 +192,8 @@ metadata:
       manager: vpa-recommender
       operation: Update
       subresource: status
-      time: '2024-03-16T17:09:17Z'
-  name: nginx-1-hpa-m1lg
+      time: '2024-03-17T17:29:56Z'
+  name: nginx-1-hpa-blfk
   namespace: default
 spec:
   maxReplicas: 5
@@ -243,7 +243,7 @@ metadata:
           'f:type': {}
       manager: GoogleCloudConsole
       operation: Update
-      time: '2024-03-16T14:05:32Z'
+      time: '2024-03-17T17:13:37Z'
     - apiVersion: v1
       fieldsType: FieldsV1
       fieldsV1:
@@ -257,21 +257,21 @@ metadata:
       manager: cloud-controller-manager
       operation: Update
       subresource: status
-      time: '2024-03-16T14:06:10Z'
+      time: '2024-03-17T17:14:17Z'
   name: nginx-1-service
   namespace: default
 spec:
   allocateLoadBalancerNodePorts: true
-  clusterIP: 34.118.235.160
+  clusterIP: 34.118.234.188
   clusterIPs:
-    - 34.118.235.160
+    - 34.118.234.188
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-    - nodePort: 31035
+    - nodePort: 30433
       port: 80
       protocol: TCP
       targetPort: 8080
