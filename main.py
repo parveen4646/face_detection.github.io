@@ -15,8 +15,8 @@ app = Flask(__name__)
 
 # Define the directory to store extracted images
 # Use the mounted directory in Kubernetes if available, otherwise fallback to a local directory
-extracted_images_dir = '/tmp/data/extracted_images'
-os.makedirs(extracted_images_dir, exist_ok=True)
+temp_dir = tempfile.mkdtemp()
+extracted_images_dir=temp_dir
 
 
 def import_files(folder_path):
@@ -25,7 +25,8 @@ def import_files(folder_path):
     return list_of_images
 
 
-def extract_face(filename, required_size=(224, 224), extracted_images_dic1={},extracted_images_dir='/tmp/data/extracted_images'):
+def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
+    global extracted_images_dir
     filename = os.path.join(extracted_images_dir, filename)
     if filename.endswith((".jpg", ".png", ".jpeg")):
         print(f'filename={filename}')
@@ -72,7 +73,8 @@ def stack_embed(embeddings):
     return stacked_embeddings
 
 
-def final_result(final_embeddings, list_names,extracted_images_dir='/tmp/data/extracted_images'):
+def final_result(final_embeddings, list_names):
+    global extracted_images_dir
     print('final loop')
     result_indices = []
     for i in range(final_embeddings.shape[0]):
@@ -135,7 +137,8 @@ def index():
 
 
 @app.route('/upload', methods=['POST'])
-def upload_folder(extracted_images_dir = '/tmp/data/extracted_images'):
+def upload_folder():
+    global extracted_images_dir
     if 'folder' not in request.files:
         return 'No folder part'
 
