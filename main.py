@@ -15,9 +15,8 @@ app = Flask(__name__)
 
 # Define the directory to store extracted images
 # Use the mounted directory in Kubernetes if available, otherwise fallback to a local directory
-extracted_images_dir = '/tmp/data/extracted_images'
-os.makedirs(extracted_images_dir, exist_ok=True)
-
+temp_dir = tempfile.mkdtemp()
+extracted_images_dir=temp_dir
 
 def import_files(folder_path):
     list_of_images = os.listdir(folder_path)
@@ -25,7 +24,8 @@ def import_files(folder_path):
     return list_of_images
 
 
-def extract_face(filename, required_size=(224, 224), extracted_images_dic1={},extracted_images_dir='/tmp/data/extracted_images'):
+def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
+    global extracted_images_dir
     filename = os.path.join(extracted_images_dir, filename)
     if filename.endswith((".jpg", ".png", ".jpeg")):
         print(f'filename={filename}')
@@ -72,7 +72,8 @@ def stack_embed(embeddings):
     return stacked_embeddings
 
 
-def final_result(final_embeddings, list_names,extracted_images_dir='/tmp/data/extracted_images'):
+def final_result(final_embeddings, list_names):
+    global extracted_images_dir
     print('final loop')
     result_indices = []
     for i in range(final_embeddings.shape[0]):
@@ -135,43 +136,58 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_folder():
-    extracted_images_dir = '/tmp/data/extracted_images'
-    os.makedirs(extracted_images_dir, exist_ok=True)
+    global extracted_images_dir
+    print(f'directory=={extracted_images_dir}')
+
     if 'folder' not in request.files:
         return 'No folder part'
 
     folder = request.files['folder']
+    print(f'foldername=={folder.filename}')
+
     if folder.filename == '':
         return 'No selected folder'
 
-    if folder.filename.endswith('.zip'):
-        zip_file_path = os.path.join(extracted_images_dir, folder.filename)
-        folder.save(zip_file_path)
-   
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall(extracted_images_dir)
+    folder_dir = os.path.dirname(folder.filename)
 
-        os.remove(zip_file_path)
+    print(f'folder_dir=={folder_dir}')
+    
+    folder_path=os.path.join(extracted_images_dir,'f1',folder.filename)
+    os.makedirs(os.path.dirname(folder_path), exist_ok=True)
 
-        list_of_images = []  # Initialize list_of_images here
+    print(folder_path)
+    
+    folder.save(folder_path)
 
-        try:
-            list_of_images = import_files(extracted_images_dir)
-        except Exception as e:
-            shutil.rmtree(extracted_images_dir)
-            return f"Error occurred while importing files: {e}", 500
+    for file in os.listdir(folder_path):
+        if file.endswith('.zip'):
+            zip_file_path = os.path.join(extracted_images_dir, file.filename)
+            folder.save(zip_file_path)
+    
+            with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+                zip_ref.extractall(extracted_images_dir)
 
-        extracted_images_dic1 = {}
-        final_embeddings = None
-        list_names = []
+            os.remove(zip_file_path)
 
-        for image_path in list_of_images:
-            extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
-            if extracted_faces:
-                embeddings, temp_list_names = generate_embedding(extracted_faces)
-                list_names.extend(temp_list_names)
-                embeddd = stack_embed(embeddings)
-                final_embeddings = embeddd
+            list_of_images = []  # Initialize list_of_images here
+
+            try:
+                list_of_images = import_files(extracted_images_dir)
+            except Exception as e:
+                shutil.rmtree(extracted_images_dir)
+                return f"Error occurred while importing files: {e}", 500
+
+            extracted_images_dic1 = {}
+            final_embeddings = None
+            list_names = []
+
+            for image_path in list_of_images:
+                extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
+                if extracted_faces:
+                    embeddings, temp_list_names = generate_embedding(extracted_faces)
+                    list_names.extend(temp_list_names)
+                    embeddd = stack_embed(embeddings)
+                    final_embeddings = embeddd
 
         if final_embeddings is not None:
             return final_result(final_embeddings, list_names)
@@ -179,7 +195,7 @@ def upload_folder():
             shutil.rmtree(extracted_images_dir)
             return 'Error: No faces extracted from the uploaded images', 404
     else:
-        return "no zip folder{list_of_images}"
+        return f"no zip folder{list_of_images}"
 
     shutil.rmtree(extracted_images_dir)
 
