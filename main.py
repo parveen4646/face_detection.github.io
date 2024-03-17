@@ -10,6 +10,8 @@ from facenet_pytorch import InceptionResnetV1
 from mtcnn import MTCNN
 import tempfile
 import pandas as pd
+import pickel
+
 
 app = Flask(__name__)
 
@@ -148,6 +150,7 @@ def upload_folder():
     print(f'folder.filename{folder.filename}')
     if folder.filename.endswith('.zip'):
         zip_file_path = os.path.join(extracted_images_dir, folder.filename)
+        zip_file_path=str(zip_file_path).replace('/f1/','/')
         folder.save(zip_file_path)
         print(f'zip file path{zip_file_path}')
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
