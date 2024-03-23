@@ -10,6 +10,7 @@ from facenet_pytorch import InceptionResnetV1
 from mtcnn import MTCNN
 import tempfile
 import pandas as pd
+from google.cloud import storage
 
 
 
@@ -17,18 +18,13 @@ app = Flask(__name__)
 
 # Define the directory to store extracted images
 # Use the mounted directory in Kubernetes if available, otherwise fallback to a local directory
-temp_dir = tempfile.mkdtemp()
-extracted_images_dir=temp_dir
-
-
 def import_files(folder_path):
     list_of_images = os.listdir(folder_path)
     list_of_images = [filename for filename in list_of_images if filename.endswith('.jpeg')]
     return list_of_images
 
 
-def extract_face(filename, required_size=(224, 224), extracted_images_dic1={}):
-    global extracted_images_dir
+def extract_face(filename,extracted_images_dir,required_size=(224, 224), extracted_images_dic1={},):
     filename = os.path.join(extracted_images_dir, filename)
     if filename.endswith((".jpg", ".png", ".jpeg")):
         print(f'filename={filename}')
@@ -137,26 +133,24 @@ def index():
     # Render the HTML form for folder upload
     return render_template('base.html')
 
-
 @app.route('/upload', methods=['POST'])
 def upload_folder():
-    global extracted_images_dir
-    if 'folder' not in request.files:
-        return 'No folder part'
+    if 'file' not in request.files:
+        return "No file part"
 
-    folder = request.files['folder']
-    if folder.filename == '':
-        return 'No selected folder'
-    print(f'folder.filename{folder.filename}')
-    if folder.filename.endswith('.zip'):
-        zip_file_path = os.path.join(extracted_images_dir, folder.filename)
-        print(f'folder.filename{zip_file_path}')
-        folder.save(zip_file_path)
-        print(f'zip file path{zip_file_path}')
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+    file = request.files['file']
+
+    if file.filename == '':
+        return "No selected file"
+
+    if file and file.filename.endswith('.zip'):
+        temp_dir = tempfile.mkdtemp()
+        extracted_images_dir = os.path.join(temp_dir, 'extracted_images')
+        print(f'extracted_images_dir={extracted_images_dir}')
+        print(f'file.filename={file.filename}')
+        file.save(os.path.join(temp_dir, file.filename))
+        with zipfile.ZipFile(os.path.join(temp_dir, file.filename), 'r') as zip_ref:
             zip_ref.extractall(extracted_images_dir)
-
-        os.remove(zip_file_path)
 
         list_of_images = []  # Initialize list_of_images here
 
@@ -171,7 +165,7 @@ def upload_folder():
         list_names = []
 
         for image_path in list_of_images:
-            extracted_faces = extract_face(image_path, extracted_images_dic1=extracted_images_dic1)
+            extracted_faces = extract_face(image_path, extracted_images_dir=extracted_images_dir, extracted_images_dic1=extracted_images_dic1)
             if extracted_faces:
                 embeddings, temp_list_names = generate_embedding(extracted_faces)
                 list_names.extend(temp_list_names)
@@ -184,10 +178,7 @@ def upload_folder():
             shutil.rmtree(extracted_images_dir)
             return 'Error: No faces extracted from the uploaded images', 404
     else:
-        return "no zip folder{list_of_images}"
-
-    shutil.rmtree(extracted_images_dir)
-
+        return 'Invalid file format. Please upload a zip file'
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
