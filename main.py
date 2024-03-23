@@ -6,12 +6,10 @@ import numpy as np
 import torch
 import zipfile
 import shutil
-from facenet_pytorch import InceptionResnetV1
 from mtcnn import MTCNN
 import tempfile
 import pandas as pd
-from google.cloud import storage
-
+import pickle
 
 
 app = Flask(__name__)
@@ -49,7 +47,8 @@ def extract_face(filename,extracted_images_dir,required_size=(224, 224), extract
 
 
 def generate_embedding(pixels):
-    model = InceptionResnetV1(pretrained='vggface2').eval()
+    with open('model.pkl', 'rb') as plt:
+        model=pickle.load(plt)
     emb_list = []
     name_list = []
     if pixels is not None:
@@ -122,6 +121,7 @@ def final_result(final_embeddings, list_names):
 
         # Check if the zip file exists
         if os.path.exists(zip_path):
+            print('done')
             # Send the zip file as an attachment
             return send_file(zip_path, as_attachment=True), shutil.rmtree(results_dir)
         else:
@@ -179,6 +179,3 @@ def upload_folder():
             return 'Error: No faces extracted from the uploaded images', 404
     else:
         return 'Invalid file format. Please upload a zip file'
-
-if __name__ == '__main__':
-    app.run(debug=True, port=8080)
