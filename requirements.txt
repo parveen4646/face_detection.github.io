@@ -11,4 +11,8 @@ torch==2.2.1
 google 
 gunicorn
 google-cloud-storage
+<<<<<<< HEAD
 tensorflow
+=======
+tensorflow
+>>>>>>> origin/main
