@@ -6,10 +6,10 @@ import numpy as np
 import torch
 import zipfile
 import shutil
+from facenet_pytorch import InceptionResnetV1
 from mtcnn import MTCNN
 import tempfile
 import pandas as pd
-import pickle
 
 
 app = Flask(__name__)
@@ -47,8 +47,7 @@ def extract_face(filename,extracted_images_dir,required_size=(224, 224), extract
 
 
 def generate_embedding(pixels):
-    with open('model.pkl', 'rb') as plt:
-        model=pickle.load(plt)
+    model = InceptionResnetV1(pretrained='vggface2').eval()
     emb_list = []
     name_list = []
     if pixels is not None:
