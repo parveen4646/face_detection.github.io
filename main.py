@@ -147,7 +147,7 @@ def upload_folder():
         extracted_images_dir = os.path.join(temp_dir, 'extracted_images')
         print(f'extracted_images_dir={extracted_images_dir}')
         print(f'file.filename={file.filename}')
-        file.save(os.path.join(temp_dir, file.filename))
+        file.save(os.path.join(temp_dir, 'Archive.zip'))
         with zipfile.ZipFile(os.path.join(temp_dir, file.filename), 'r') as zip_ref:
             zip_ref.extractall(extracted_images_dir)
 
@@ -178,3 +178,6 @@ def upload_folder():
             return 'Error: No faces extracted from the uploaded images', 404
     else:
         return 'Invalid file format. Please upload a zip file'
+
+if __name__=="__main__":
+    app.run()

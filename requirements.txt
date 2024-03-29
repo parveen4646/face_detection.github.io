@@ -3,7 +3,7 @@ Flask==2.2.5
 matplotlib==3.8.2
 mtcnn==0.1.1
 numpy==1.26.4
-opencv_python==4.9.0.80
+opencv-python-headless
 pandas==2.2.1
 protobuf==4.25.3
 scikit_learn==1.4.0
